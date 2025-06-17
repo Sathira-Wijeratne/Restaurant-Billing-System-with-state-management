@@ -1,5 +1,9 @@
 import { Box, Button, Dialog, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { addDoc, collection, doc, getDocs, query, where } from "firebase/firestore";
 import { useState } from "react";
+import cong from "../Firebase";
+import bcrypt from "bcryptjs";
+import { toast, ToastContainer } from "react-toastify";
 
 export default function Login() {
     // attributes
@@ -13,8 +17,12 @@ export default function Login() {
     const [retypedPasswordValidationError, setRetypedPasswordValidationError] = useState('');
     const emailPattern = /^[a-zA-Z0-9]+([._+-]+[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(-+[a-z0-9]+)*\.[a-z]{2,}$/;
 
+    // toasts
+    const notifyAccountCreationSuccess = () => toast.success("Account successfully created");
+    const notifyAccountCreationFail = () => toast.error("Account not created");
+
     // functions
-    function handleRegister(e) {
+    async function handleRegister(e) {
         e.preventDefault();
         // validate data
         // email validatioon
@@ -47,13 +55,41 @@ export default function Login() {
 
         // reset error messages 
         setRetypedPasswordValidationError('');
-        setShowRegisterDialog(false);
 
         // proceeed with registering
+        try {
+            // check if account already exists
+            const usersRef = collection(cong, "users");
+            const q = query(usersRef, where("email", "==", registerData.email));
+            const querySnapshot = await getDocs(q);
+        
+            if(!querySnapshot.empty){
+                setEmailValiadtionError('Account already exists');
 
+                return;
+            } 
+            
+            setEmailValiadtionError('');
+
+            // hash password
+            const passwordHash = await bcrypt.hash(registerData.password, 10);
+
+            const docRef = await addDoc(collection(cong, "users"), {
+                email : registerData.email, 
+                password : passwordHash
+            });
+
+            // success toast
+            notifyAccountCreationSuccess();
+            setShowRegisterDialog(false);
+        } catch (error) {
+            // unsuccess toast
+            console.error("Account registration failed", error);
+            notifyAccountCreationFail();
+        }
     }
 
-    function handleLogin(e) {
+    async function handleLogin(e) {
         e.preventDefault();
 
         // validate email
@@ -65,13 +101,26 @@ export default function Login() {
 
         // check if account exists
 
+
         // check if password matches
 
+
         // login
+
     }
 
     return (
         <Box>
+            {/* Toast */}
+            <ToastContainer 
+                position="bottom-center"
+                autoClose={5000}
+                pauseOnHover={false}
+                hideProgressBar={true}
+                closeButton={false}
+                theme="light"
+                style={{width: 'auto'}}
+            />
             {/* Login Form */}
             <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: "center"}} mt={5}>
                 <Box component="form" onSubmit={handleLogin} sx={{ display: "flex", gap: 1, flexDirection: "column", maxWidth: 400, width: '100%', backgroundColor: 'white', padding : 4, borderRadius : 2, boxShadow : 3, mx : 2 }} mt={1}>
@@ -85,6 +134,7 @@ export default function Login() {
                     </Box>
                 </Box>
             </Box>
+
             
             {/* Registration form */}
             <Dialog open={showRegisterDialog} onClose={() => setShowRegisterDialog(false)}>
