@@ -95,7 +95,7 @@ export default function ViewSales() {
                             <Button
                                 variant="contained"
                                 color="primary"
-                                onClick={() => navigate('/')}
+                                onClick={() => navigate('/items')}
                                 sx={{
                                     borderRadius: 2,
                                     px: 2,
