@@ -1,4 +1,4 @@
-import { Box, Button, Dialog, DialogContent, DialogTitle, TextField } from "@mui/material";
+import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { addDoc, collection, doc, getDocs, query, where } from "firebase/firestore";
 import { useState } from "react";
 import cong from "../Firebase";
@@ -11,12 +11,13 @@ export default function Login() {
     const [showRegisterDialog, setShowRegisterDialog] = useState(false);
     const [registerData, setRegisterData] = useState({ email: '', password: '', retypedPassword: '' });
     const [loginData, setLoginData] = useState({ email: '', password: '' });
+    const [isLoading, setIsLoading] = useState(false);
 
     // validation error messages
     const [signupEmailValidationError, setSignupEmailValiadtionError] = useState('');
     const [signupPasswordValidationError, setSignupPasswordValidationError] = useState('');
     const [signupRetypedPasswordValidationError, setRetypedPasswordValidationError] = useState('');
-    
+
     const [loginEmailValidationError, setLoginEmailValidationError] = useState('');
     const [loginPasswordValidationError, setLoginPasswordValidationError] = useState('');
     // regex
@@ -78,6 +79,7 @@ export default function Login() {
             }
 
             setSignupEmailValiadtionError('');
+            setIsLoading(true);
 
             // hash password
             const passwordHash = await bcrypt.hash(registerData.password, 10);
@@ -88,6 +90,7 @@ export default function Login() {
             });
 
             // success toast
+            setIsLoading(false);
             notifyAccountCreationSuccess();
             setShowRegisterDialog(false);
         } catch (error) {
@@ -105,17 +108,20 @@ export default function Login() {
             setLoginEmailValidationError('Invalid email format');
 
             return;
-        }        
+        }
         setLoginEmailValidationError('');
 
         // check if account exists
         try {
+            setIsLoading(true);
+
             const usersRef = collection(cong, "users");
             const q = query(usersRef, where("email", "==", loginData.email));
             const querySnapshot = await getDocs(q);
 
             if (querySnapshot.empty) {
                 setSignupEmailValiadtionError('Account not found');
+                setIsLoading(false);
 
                 return;
             }
@@ -126,18 +132,21 @@ export default function Login() {
             const userData = userDoc.data();
             const isPasswordValid = await bcrypt.compare(loginData.password, userData.password);
 
-            if (!isPasswordValid){
+            if (!isPasswordValid) {
                 setLoginPasswordValidationError('Incorrect Password');
+                setIsLoading(false);
 
                 return;
             }
 
             setLoginPasswordValidationError('');
+            setIsLoading(false);
 
             // proceed to home page
-            navigate('/items');
+            // navigate('/items');
 
         } catch (error) {
+            setIsLoading(false);
             console.error("Login failed", error);
             notifyLoginFail();
         }
@@ -178,11 +187,18 @@ export default function Login() {
             />
             {/* Login Form */}
             <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: "center" }} mt={5}>
-                <Box component="form" onSubmit={handleLogin} sx={{ display: "flex", gap: 1, flexDirection: "column", maxWidth: 400, width: '100%', backgroundColor: 'white', padding: 4, borderRadius: 2, boxShadow: 3, mx: 2 }} mt={1}>
+
+                {/* Loading screen */}
+                {isLoading &&
+                    <Box sx={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, display: 'flex', justifyContent: 'center', alignItems: 'center', backgroundColor: 'rgba(255, 255, 255, 0.8)', borderRadius: 2, zIndex: 1400 }}>
+                        <CircularProgress></CircularProgress>
+                    </Box>}
+
+                <Box component="form" onSubmit={handleLogin} sx={{ display: "flex", gap: 1, flexDirection: "column", maxWidth: 400, width: '100%', backgroundColor: 'white', padding: 4, borderRadius: 2, boxShadow: 3, mx: 2, position: 'relative' }} mt={1}>
                     <h2 style={{ margin: 0 }}>Login</h2>
 
-                    <TextField required fullWidth type="email" label="Email" error={!!loginEmailValidationError} helperText={loginEmailValidationError} onChange={(e) => {setLoginData({...loginData, email : e.target.value})}}></TextField>
-                    <TextField required fullWidth type="password" label="Password" error={!!loginPasswordValidationError} helperText={loginPasswordValidationError} onChange={(e) => {setLoginData({...loginData, password : e.target.value})}}></TextField>
+                    <TextField required fullWidth type="email" label="Email" error={!!loginEmailValidationError} helperText={loginEmailValidationError} onChange={(e) => { setLoginData({ ...loginData, email: e.target.value }) }}></TextField>
+                    <TextField required fullWidth type="password" label="Password" error={!!loginPasswordValidationError} helperText={loginPasswordValidationError} onChange={(e) => { setLoginData({ ...loginData, password: e.target.value }) }}></TextField>
                     <Box sx={{ display: "flex", gap: 1 }}>
                         <Button type="submit" variant="contained" sx={{ flex: 1, py: 1.5 }}>Login</Button>
                         <Button type="button" variant="contained" sx={{ flex: 1, py: 1.5 }} onClick={() => setShowRegisterDialog(true)}>Sign Up</Button>
