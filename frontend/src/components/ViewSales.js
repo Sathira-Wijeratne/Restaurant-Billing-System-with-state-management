@@ -7,6 +7,7 @@ import SalesTable from "./SalesTable";
 import SaleDetailsDialog from "./dialogs/SaleDetailsDialog";
 import useSales from "../hooks/useSales";
 import { useNavigate } from "react-router-dom";
+import LogoutButton from "./LogoutButton";
 
 export default function ViewSales() {
     // State variables
@@ -34,12 +35,17 @@ export default function ViewSales() {
     };
 
     return (
-        <ThemeProvider theme={restaurantTheme}>            <Box sx={{
+        <ThemeProvider theme={restaurantTheme}>            
+        <Box sx={{
                 minHeight: '100vh',
                 backgroundColor: (theme) => theme.palette.background.default,
                 backgroundImage: (theme) => `linear-gradient(rgba(255, 248, 225, 0.8), rgba(255, 248, 225, 0.8)), url("https://www.transparenttextures.com/patterns/food.png")`,
-                pt: 2
+                pt: 2,
+                position:'relative'
             }}>
+                {/* Logout Button */}
+                <LogoutButton/>
+
                 {/* Overlay for blocking action */}
                 {blockingAction && (
                     <Box

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { toast, ToastContainer } from "react-toastify";
-import { Add, MenuBook, Assessment } from "@mui/icons-material";
+import { Add, MenuBook, Assessment, Logout } from "@mui/icons-material";
 import { Paper, Button, Typography, Box, Container, ThemeProvider } from "@mui/material";
 import restaurantTheme from "../theme/restaurantTheme";
 import AddItemDialog from "./dialogs/AddItemDialog";
@@ -8,6 +8,7 @@ import EditItemDialog from "./dialogs/EditItemDialog";
 import MenuItemsTable from "./MenuItemsTable";
 import useMenuItems from "../hooks/useMenuItems";
 import { useNavigate } from 'react-router-dom';
+import LogoutButton from "./LogoutButton";
 
 export default function ViewAndManageItems() {
     // State variables
@@ -104,12 +105,17 @@ export default function ViewAndManageItems() {
     };
 
     return (
-        <ThemeProvider theme={restaurantTheme}>            <Box sx={{
+        <ThemeProvider theme={restaurantTheme}>
+            <Box sx={{
                 minHeight: '100vh',
-                backgroundColor: (theme) => theme.palette.background.default, // Using theme background
-                backgroundImage: (theme) => `linear-gradient(rgba(255, 248, 225, 0.8), rgba(255, 248, 225, 0.8)), url("https://www.transparenttextures.com/patterns/food.png")`,
-                pt: 2
+                backgroundColor: (theme) => theme.palette.background.default,
+                backgroundImage: () => `linear-gradient(rgba(255, 248, 225, 0.8), rgba(255, 248, 225, 0.8)), url("https://www.transparenttextures.com/patterns/food.png")`,
+                pt: 2,
+                position: 'relative' // relatively-positioned element will cause it to be adjusted away from its normal position.
             }}>
+                {/* Logout Button */}
+                <LogoutButton/>
+
                 {/* Overlay for blocking action */}
                 {blockingAction && (
                     <Box
@@ -140,7 +146,8 @@ export default function ViewAndManageItems() {
                 />
 
                 {/* Main content */}
-                <Container maxWidth="md">                    <Paper elevation={3} sx={{
+                <Container maxWidth="md">                    
+                    <Paper elevation={3} sx={{
                         p: 3,
                         mb: 4,
                         borderTop: (theme) => `6px solid ${theme.palette.primary.main}`,
