@@ -143,19 +143,13 @@ export default function Login() {
             setIsLoading(false);
 
             // proceed to home page
-            // navigate('/items');
+            navigate('/items');
 
         } catch (error) {
             setIsLoading(false);
             console.error("Login failed", error);
             notifyLoginFail();
         }
-
-        // check if password matches
-
-
-        // login
-
     }
 
     // helper methods
