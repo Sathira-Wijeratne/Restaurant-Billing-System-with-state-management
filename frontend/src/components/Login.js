@@ -131,7 +131,7 @@ export default function Login() {
                 setIsLoading(false);
                 navigate('/items');
             } else {
-                console.log('Login failed', data.message);
+                console.log(data.message);
                 setIsLoading(false);
 
                 if (data.message === 'Account not found'){
