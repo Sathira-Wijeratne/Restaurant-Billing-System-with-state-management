@@ -115,55 +115,37 @@ export default function Login() {
         try {
             setIsLoading(true);
 
-            const usersRef = collection(cong, "users");
-            const q = query(usersRef, where("email", "==", loginData.email));
-            const querySnapshot = await getDocs(q);
+            const response = await fetch('http://localhost:3001/api/login', {
+                method: 'POST',
+                headers : {
+                    'Content-Type' : 'application/json', // tells the server that the data being sent in the request body is in JSON format.
+                },
+                body: JSON.stringify(loginData), //convert the JavaScript object into a JSON string
+            });
 
-            if (querySnapshot.empty) {
-                setSignupEmailValiadtionError('Account not found');
+            const data = await response.json();
+
+            if (response.ok) {
+                console.log('Login successful', data);
+                localStorage.setItem('accessToken', data.accessToken);
+                setIsLoading(false);
+                navigate('/items');
+            } else {
+                console.log('Login failed', data.message);
                 setIsLoading(false);
 
-                return;
+                if (data.message === 'Account not found'){
+                    setLoginEmailValidationError(data.message);
+                } else if (data.message === 'Incorrect password') {
+                    setLoginPasswordValidationError(data.message);
+                } else {
+                    notifyLoginFail();
+                }
             }
-
-            setSignupEmailValiadtionError('');
-
-            const userDoc = querySnapshot.docs[0];
-            const userData = userDoc.data();
-            const isPasswordValid = await bcrypt.compare(loginData.password, userData.password);
-
-            if (!isPasswordValid) {
-                setLoginPasswordValidationError('Incorrect Password');
-                setIsLoading(false);
-
-                return;
-            }
-
-            setLoginPasswordValidationError('');
-            setIsLoading(false);
-
-            // proceed to home page
-            navigate('/items');
-
         } catch (error) {
             setIsLoading(false);
-            console.error("Login failed", error);
+            console.error("Login request failed", error);
             notifyLoginFail();
-        }
-    }
-
-    // helper methods
-    async function isAccountExist(email) {
-        try {
-            const usersRef = collection(cong, "users");
-            const q = query(usersRef, where("email", "==", email));
-            const querySnapshot = await getDocs(q);
-
-            return !querySnapshot.empty;
-
-        } catch (error) {
-            console.error("Error checking account existence", error);
-            return false;
         }
     }
 

@@ -7,6 +7,7 @@ export default function LogoutButton() {
 
     function handleLogout(){
         // remove JWT
+        localStorage.removeItem('accessToken');
 
         navigate('/');
     }

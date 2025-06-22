@@ -6,6 +6,7 @@ import ViewAndManageItems from './components/ViewAndManageItems';
 import RestaurantHeader from './components/RestaurantHeader';
 import ViewSales from './components/ViewSales';
 import Login from './components/Login';
+import ProtectedRoute from './components/ProtectedRoute';
 function App() {
   return (
     <FirebaseDatabaseProvider>
@@ -13,8 +14,8 @@ function App() {
           <RestaurantHeader />
         <Routes>
           <Route path="/" exact Component={Login}/>
-          <Route path="/items" exact Component={ViewAndManageItems}/>
-          <Route path="/sales" exact Component={ViewSales}/>
+          <Route path="/items" exact element={<ProtectedRoute><ViewAndManageItems/></ProtectedRoute>}/>
+          <Route path="/sales" exact element={<ProtectedRoute><ViewSales/></ProtectedRoute>}/>
         </Routes>
       </BrowserRouter>
     </FirebaseDatabaseProvider>
