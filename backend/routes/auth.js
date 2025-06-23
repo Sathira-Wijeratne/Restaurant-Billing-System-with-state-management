@@ -8,7 +8,6 @@ const secretKey = process.env.JSON_WEB_TOKEN_SECRET_KEY;
 
 // Login endpoint
 router.post('/login', async(req, res) => {
-    console.log("Starting");
     // get the data
     const {email, password} = req.body;
 
