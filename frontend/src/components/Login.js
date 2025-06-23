@@ -115,7 +115,7 @@ export default function Login() {
         try {
             setIsLoading(true);
 
-            const response = await fetch('http://localhost:3001/api/login', {
+            const response = await fetch('http://localhost:3001/api/auth/login', {
                 method: 'POST',
                 headers : {
                     'Content-Type' : 'application/json', // tells the server that the data being sent in the request body is in JSON format.
