@@ -1,7 +1,7 @@
 import { Navigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 
-const ProtectedRoute = ({ children }) => { // what does this mean?
+const ProtectedRoute = ({ children }) => {
     const [isAuthenticated, setIsAuthenticated] = useState(null);
     const token = localStorage.getItem('accessToken');
 
