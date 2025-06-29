@@ -4,7 +4,7 @@ const bcrypt = require('bcryptjs');
 const {db} = require("../config/FirebaseAdmin.js");
 const jwt = require('jsonwebtoken');
 
-const secretKey = process.env.JSON_WEB_TOKEN_SECRET_KEY; 
+const secretKey = process.env.JSON_WEB_TOKEN_SECRET_KEY;
 
 // Login endpoint
 router.post('/login', async(req, res) => {
@@ -35,8 +35,14 @@ router.post('/login', async(req, res) => {
         const payload = {id:userDoc.id, email: userData.email};
         const accessToken = jwt.sign(payload, secretKey, {expiresIn:'15m'});
 
-        return res.json({accessToken: accessToken});
-
+        // is it correct have 2 res like this?
+        res.cookie('accessToken', accessToken, {
+            httpOnly : true,
+            secure : process.env.NODE_ENV === 'production',
+            maxAge : 15 * 60 * 1000 //15 minutes
+        });
+        
+        res.json({user: {id:userDoc.id, email: userData.email}});
     } catch (error){
         console.error('Login failed', error);
         res.status(500).json({message: 'Login failed. Please try again'});

@@ -1,14 +1,16 @@
 import { Logout } from "@mui/icons-material";
 import { Box, Button } from "@mui/material";
 import { useNavigate } from "react-router-dom";
+import {useDispatch} from 'react-redux';
+import {logout} from '../store/authSlice';
 
 export default function LogoutButton() {
     const navigate = useNavigate();
+    const dispatch = useDispatch();
 
     function handleLogout(){
         // remove JWT
-        localStorage.removeItem('accessToken');
-
+        dispatch(logout());
         navigate('/');
     }
 

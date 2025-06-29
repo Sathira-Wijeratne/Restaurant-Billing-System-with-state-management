@@ -1,49 +1,21 @@
 import { Navigate } from "react-router-dom";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
+import {useDispatch, useSelector} from 'react-redux';
+import {verifyAuth} from '../store/authSlice';
 
 const ProtectedRoute = ({ children }) => {
-    const [isAuthenticated, setIsAuthenticated] = useState(null);
-    const token = localStorage.getItem('accessToken');
+    const dispatch = useDispatch();
+    const {isAuthenticated, loading} = useSelector(state => state.auth);
 
     useEffect(() => {
-        const validateToken = async () => {
-            if (!token) {
-                setIsAuthenticated(false);
-                return;
-            }
+        dispatch(verifyAuth()); //what does this do?
+    }, [dispatch]);
 
-            try {
-                const response = await fetch('http://localhost:3001/api/verify-token', {
-                    headers: { 'Authorization': `Bearer ${token}` }
-                });
-
-                if (response.ok) {
-                    setIsAuthenticated(true);
-                } else {
-                    localStorage.removeItem('accessToken');
-                    setIsAuthenticated(false);
-                }
-            } catch (error) {
-                console.error('Token validation failed', error);
-                setIsAuthenticated(false);
-                console.error('Token validation failed');
-            }
-        };
-
-        validateToken();
-
-    }, [token]);
-
-    if (isAuthenticated === null) {
-        return null; // Or your loading component
+    if (loading) {
+        return <div>Verifying authentication...</div>;
     }
 
-    if (!isAuthenticated) {
-        // localStorage.removeItem('accessToken');
-        return <Navigate to="/" replace />;
-    }
-
-    return children;
+    return isAuthenticated ? children : <Navigate to="/" replace/>;
 };
 
 export default ProtectedRoute;

@@ -5,6 +5,8 @@ import cong from "../Firebase";
 import bcrypt from "bcryptjs";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
+import {useDispatch} from 'react-redux';
+import {loginUser} from '../store/authSlice';
 
 export default function Login() {
     // attributes
@@ -29,6 +31,9 @@ export default function Login() {
     const notifyLoginFail = () => toast.error("Login failed");
 
     const navigate = useNavigate();
+
+    // redux
+    const dispatch = useDispatch();
 
     // functions
     async function handleRegister(e) {
@@ -98,46 +103,38 @@ export default function Login() {
             console.error("Account registration failed", error);
             notifyAccountCreationFail();
         }
-    }
-
+    }    
+    
     async function handleLogin(e) {
         e.preventDefault();
 
         // validate email
         if (!(emailPattern.test(loginData.email))) {
             setLoginEmailValidationError('Invalid email format');
-
             return;
         }
         setLoginEmailValidationError('');
 
-        // check if account exists
         try {
             setIsLoading(true);
-
-            const response = await fetch('http://localhost:3001/api/auth/login', {
-                method: 'POST',
-                headers : {
-                    'Content-Type' : 'application/json', // tells the server that the data being sent in the request body is in JSON format.
-                },
-                body: JSON.stringify(loginData), //convert the JavaScript object into a JSON string
-            });
-
-            const data = await response.json();
-
-            if (response.ok) {
-                console.log('Login successful', data);
-                localStorage.setItem('accessToken', data.accessToken);
+            
+            const result = await dispatch(loginUser(loginData));
+            console.log('result: ', result);
+            console.log('payload: ', result.payload);
+            
+            if (loginUser.fulfilled.match(result)) {
+                console.log('Login successful', result.payload);
                 setIsLoading(false);
                 navigate('/items');
             } else {
-                console.log(data.message);
+                console.log('Login failed:', result.payload);
                 setIsLoading(false);
 
-                if (data.message === 'Account not found'){
-                    setLoginEmailValidationError(data.message);
-                } else if (data.message === 'Incorrect password') {
-                    setLoginPasswordValidationError(data.message);
+                // these conditions probably won't match the payload
+                if (result.payload === 'Account not found') { // payload set in returnWithValue() in auth.js
+                    setLoginEmailValidationError(result.payload);
+                } else if (result.payload === 'Incorrect password') {
+                    setLoginPasswordValidationError(result.payload);
                 } else {
                     notifyLoginFail();
                 }
