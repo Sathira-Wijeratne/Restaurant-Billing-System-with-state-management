@@ -39,6 +39,7 @@ router.post('/login', async(req, res) => {
         res.cookie('accessToken', accessToken, {
             httpOnly : true,
             secure : process.env.NODE_ENV === 'production',
+            sameSite: 'none', // Required for cross-origin cookies
             maxAge : 15 * 60 * 1000 //15 minutes
         });
         

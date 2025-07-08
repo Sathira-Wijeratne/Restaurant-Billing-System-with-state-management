@@ -1,11 +1,14 @@
 import {createSlice, createAsyncThunk} from "@reduxjs/toolkit";
 
+const API_URL = process.env.REACT_APP_API_URL || 'http://localhost:3001';
+// const API_URL = 'https://restaurant-billing-system-with-state.onrender.com';
+
 export const loginUser = createAsyncThunk(
     'auth/loginUser', 
     // the second argument is an async function that takes an object with email and password, and a thunkAPI object with rejectWithValue // what is thunkAPI object
     async({email, password}, {rejectWithValue}) => {
         try {
-            const response = await fetch('http://localhost:3001/api/auth/login', {
+            const response = await fetch(`${API_URL}/api/auth/login`, {
                 method: 'POST',
                 headers:{'Content-Type': 'application/json'},
                 // set credentials to 'include' for cookies // what does this mean?
@@ -33,7 +36,7 @@ export const verifyAuth = createAsyncThunk(
     'auth/verifyAuth',
     async (_, {rejectWithValue}) => {
      try {
-        const response = await fetch('http://localhost:3001/api/verify-token', {
+        const response = await fetch(`${API_URL}/api/verify-token`, {
             credentials: 'include'
         });
 

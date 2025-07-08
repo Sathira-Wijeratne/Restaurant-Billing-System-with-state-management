@@ -8,7 +8,9 @@ app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
     origin: process.env.CLIENT_URL || "http://localhost:3000" ,
-    credentials: true // allows cookies/credentials
+    credentials: true, // allows cookies/credentials
+    methods: ['GET', 'POST', 'PUT', 'DELETE'], // Without this, browsers block your login POST requests
+    allowedHeaders: ['Content-Type', 'Authorization'] // custom headers aren't allowed by default in CORS
 }));
 
 // import routes
