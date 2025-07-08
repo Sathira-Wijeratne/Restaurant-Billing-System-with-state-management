@@ -6,9 +6,13 @@ const cookieParser = require('cookie-parser');
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+
+const allowedOrigins = process.env.NODE_ENV === 'production' 
+    ? process.env.CLIENT_URL 
+    : process.env.LOCAL_CLIENT_URL;
+
 app.use(cors({
-    origin: "http://localhost:3000" ,
-    // origin: process.env.CLIENT_URL || "http://localhost:3000" ,
+    origin: allowedOrigins,
     credentials: true, // allows cookies/credentials
     methods: ['GET', 'POST', 'PUT', 'DELETE'], // Without this, browsers block your login POST requests
     allowedHeaders: ['Content-Type', 'Authorization'] // custom headers aren't allowed by default in CORS
