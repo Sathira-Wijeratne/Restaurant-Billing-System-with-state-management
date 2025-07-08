@@ -15,11 +15,10 @@ export const loginUser = createAsyncThunk(
 
             console.log(response);
 
-
             if (!response.ok) {
                 // if not ok, parse the error from the response body // what does parse the error mean?
                 const error = await response.json();
-                return rejectWithValue(error.message); // how does this method work                
+                return rejectWithValue(error.message); // rejectWithValue() creates a rejected promise with a custom payload. It lets you return a specific error message that Redux can handle in the rejected case of your slice.
             }
 
             return await response.json();
@@ -51,29 +50,29 @@ export const verifyAuth = createAsyncThunk(
 );
 
 // create a slice using createSlice and assign it to a constant named authSlice
-const authSlice = createSlice({ // what does createSlice and authSlice do?
+const authSlice = createSlice({ //createSlice is Redux Toolkit's function that generates action creators and reducers automatically // authSlice is your authentication state manager containing login/logout logic.
     // set the name property to 'auth'
     name: 'auth',
-    // set the initialState property with user, isAuthenticated, loading, and error properties // what is initialState?
-    initialState: {
+    // set the initialState property with user, isAuthenticated, loading, and error properties 
+    initialState: { // initialState is the starting values for your Redux state before any actions are dispatched.
         user : null,
         isAuthenticated : false,
         loading : true,
         error: null
     },
-    // set the reducers property as an object // what is reducer?
-    reducers: {
-        // define a logout reducer function that takes state as an argument // what is a reducer function?
+    // set the reducers property as an object
+    reducers: { // reducers are Functions that specify how state changes in response to actions. They take current state and return new state.
+        // define a logout reducer function that takes state as an argument // reducer functions are Pure functions that handle specific actions - they receive state and action, then return updated state.
         logout: (state) => {
-            // inside the logout reducer, set state.user to null
             state.user = null;
-            // set state.isAuthenticated to false
             state.isAuthenticated = false;
         }
     },
-    // set the extraReducers property as a function that takes a builder object // what is a builder object? // what are extraReducers?
+    // set the extraReducers property as a function that takes a builder object 
+    // builder is Redux Toolkit's utility for handling async thunk actions.  
+    // extraReducers handle actions created outside the slice (like async thunks).
     extraReducers: (builder) => {
-        // how does this parameter have access to addCase method? does anything passed as a parameter have access to this method?
+        // how does this parameter have access to addCase method? does anything passed as a parameter have access to this method? - Redux Toolkit passes a pre-configured builder object with methods like addCase. Only this specific builder object has these methods.
         // use the builder to add a case for loginUser.fulfilled
         // the callback function takes state and action
         builder
@@ -100,7 +99,6 @@ const authSlice = createSlice({ // what does createSlice and authSlice do?
     }
 });
 
-// export the logout action creator from authSlice.actions // what does this below export do?
-export const {logout} = authSlice.actions;
+export const {logout} = authSlice.actions; // extracts the logout action creator so other components can dispatch logout actions.
 // export the authSlice reducer as the default export
 export default authSlice.reducer;

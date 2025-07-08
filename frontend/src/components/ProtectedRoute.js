@@ -8,7 +8,7 @@ const ProtectedRoute = ({ children }) => {
     const {isAuthenticated, loading} = useSelector(state => state.auth);
 
     useEffect(() => {
-        dispatch(verifyAuth()); //what does this do?
+        dispatch(verifyAuth()); // what does this do?
     }, [dispatch]);
 
     if (loading) {
