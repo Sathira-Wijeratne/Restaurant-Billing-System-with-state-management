@@ -39,7 +39,7 @@ router.post('/login', async(req, res) => {
         res.cookie('accessToken', accessToken, {
             httpOnly : true,
             secure : process.env.NODE_ENV === 'production',
-            sameSite: 'none', // Required for cross-origin cookies
+            sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax', // Required for cross-origin cookies
             maxAge : 15 * 60 * 1000 //15 minutes
         });
         
@@ -48,6 +48,17 @@ router.post('/login', async(req, res) => {
         console.error('Login failed', error);
         res.status(500).json({message: 'Login failed. Please try again'});
     }
+});
+
+// Logout endpoint to clear browser cookie
+router.post('/logout', async(req, res) => {
+    res.clearCookie('accessToken', {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax'
+    });
+
+    res.json({message : 'Logged out successfully'});
 });
 
 module.exports = router;

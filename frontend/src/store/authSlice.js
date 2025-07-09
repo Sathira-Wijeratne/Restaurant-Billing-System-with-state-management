@@ -51,6 +51,26 @@ export const verifyAuth = createAsyncThunk(
     }
 );
 
+export const logoutUser = createAsyncThunk(
+    'auth/logoutUser',
+    async(_, {rejectWithValue}) => {
+        try {
+            const response = await fetch(`${API_URL}/api/auth/logout`, {
+                method : 'POST',
+                credentials: 'include'
+            });
+
+            if (!response.ok) {
+                return rejectWithValue('Logout failed');
+            }
+
+            return await response.json();
+        } catch(error) {
+            return rejectWithValue('Logout failed');
+        }
+    }
+);
+
 // create a slice using createSlice and assign it to a constant named authSlice
 const authSlice = createSlice({ //createSlice is Redux Toolkit's function that generates action creators and reducers automatically // authSlice is your authentication state manager containing login/logout logic.
     // set the name property to 'auth'
@@ -65,10 +85,10 @@ const authSlice = createSlice({ //createSlice is Redux Toolkit's function that g
     // set the reducers property as an object
     reducers: { // reducers are Functions that specify how state changes in response to actions. They take current state and return new state.
         // define a logout reducer function that takes state as an argument // reducer functions are Pure functions that handle specific actions - they receive state and action, then return updated state.
-        logout: (state) => {
-            state.user = null;
-            state.isAuthenticated = false;
-        }
+        // logout: (state) => {
+        //     state.user = null;
+        //     state.isAuthenticated = false;
+        // }
     },
     // set the extraReducers property as a function that takes a builder object 
     // builder is Redux Toolkit's utility for handling async thunk actions.  
@@ -98,9 +118,14 @@ const authSlice = createSlice({ //createSlice is Redux Toolkit's function that g
             state.isAuthenticated = false;
             state.loading = false;
         })
+        .addCase(logoutUser.fulfilled, (state) => {
+            state.user = null;
+            state.isAuthenticated = false;
+            state.loading = false;
+        });
     }
 });
 
-export const {logout} = authSlice.actions; // extracts the logout action creator so other components can dispatch logout actions.
+// export const {logout} = authSlice.actions; // extracts the logout action creator so other components can dispatch logout actions.
 // export the authSlice reducer as the default export
 export default authSlice.reducer;
