@@ -6,6 +6,13 @@ const jwt = require('jsonwebtoken');
 
 const secretKey = process.env.JSON_WEB_TOKEN_SECRET_KEY;
 
+router.get('/ping', (req, res) => {
+    res.json({
+        status: 'Server is awake',
+        timestamp: new Date().toISOString()
+    })
+});
+
 // Login endpoint
 router.post('/login', async(req, res) => {
     // get the data

@@ -1,15 +1,17 @@
 import { Box, Button, CircularProgress, Dialog, DialogContent, DialogTitle, TextField } from "@mui/material";
 import { addDoc, collection, doc, getDocs, query, where } from "firebase/firestore";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import cong from "../Firebase";
 import bcrypt from "bcryptjs";
 import { toast, ToastContainer } from "react-toastify";
 import { useNavigate } from "react-router-dom";
-import {useDispatch} from 'react-redux';
-import {loginUser} from '../store/authSlice';
+import { useDispatch } from 'react-redux';
+import { loginUser } from '../store/authSlice';
 
 export default function Login() {
     // attributes
+    const [serverStarting, setServerStarting] = useState(true);
+    const [serverReady, setServerReady] = useState(false);
     const [showRegisterDialog, setShowRegisterDialog] = useState(false);
     const [registerData, setRegisterData] = useState({ email: '', password: '', retypedPassword: '' });
     const [loginData, setLoginData] = useState({ email: '', password: '' });
@@ -35,7 +37,38 @@ export default function Login() {
     // redux
     const dispatch = useDispatch();
 
+    useEffect(() => {
+        checkServerStatus();
+    }, []);
+
     // functions
+    async function checkServerStatus() {
+        try {
+            setServerStarting(true);
+
+            const controller = new AbortController(); // AbortController lets you cancel/abort fetch requests. It creates a "controller" that can stop a network request before it completes.
+            const timeoutId = setTimeout(() => controller.abort(), 15000); //  If the server doesn't respond within 15 seconds, the request gets aborted.
+
+            const response = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:3001'}/api/auth/ping`, {
+                signal: controller.signal // signal connects the fetch request to the AbortController. When controller.abort() is called, any fetch request using this signal will be cancelled immediately.
+            });
+
+            clearTimeout(timeoutId); // If the server responds successfully before 15 seconds, the timer is cancelled
+
+            if (response.ok) {
+                setServerReady(true);
+                setServerStarting(false);
+            }
+        } catch (error) {
+            console.log('Server is asleep, waking it up');
+
+            // retry after 3 seconds
+            setTimeout(() => {
+                checkServerStatus();
+            }, 3000);
+        }
+    };
+
     async function handleRegister(e) {
         e.preventDefault();
         // validate data
@@ -103,8 +136,8 @@ export default function Login() {
             console.error("Account registration failed", error);
             notifyAccountCreationFail();
         }
-    }    
-    
+    }
+
     async function handleLogin(e) {
         e.preventDefault();
 
@@ -117,11 +150,11 @@ export default function Login() {
 
         try {
             setIsLoading(true);
-            
+
             const result = await dispatch(loginUser(loginData));
             console.log('result: ', result);
             console.log('payload: ', result.payload);
-            
+
             if (loginUser.fulfilled.match(result)) {
                 console.log('Login successful', result.payload);
                 setIsLoading(false);
@@ -158,8 +191,44 @@ export default function Login() {
                 theme="light"
                 style={{ width: 'auto' }}
             />
+
+            {/* Server starting overlay */}
+            {serverStarting && (
+                <Box sx={{
+                    position: 'fixed', 
+                    top: 0, 
+                    left: 0, 
+                    right: 0, 
+                    bottom: 0, 
+                    display: 'flex', 
+                    flexDirection: 'column',
+                    justifyContent: 'center', 
+                    alignItems: 'center', 
+                    backgroundColor: 'rgba(0, 0, 0, 0.7)',
+                    zIndex: 2000,
+                    color: 'white'
+                }}>
+                    <CircularProgress color="inherit" size={60} />
+                    <Box sx={{ mt: 3, textAlign: 'center' }}>
+                        <h2 style={{ margin: '0 0 16px 0', fontSize: '1.5rem' }}>
+                            🚀 Server is starting up...
+                        </h2>
+                        <p style={{ margin: 0, opacity: 0.8, fontSize: '1rem' }}>
+                            This may take a few seconds.
+                        </p>
+                    </Box>
+                </Box>
+            )}
+
             {/* Login Form */}
-            <Box sx={{ display: 'flex', alignItems: 'center', alignContent: 'center', justifyContent: "center" }} mt={5}>
+            <Box sx={{ 
+                display: 'flex', 
+                alignItems: 'center', 
+                alignContent: 'center', 
+                justifyContent: "center",
+                opacity: serverReady ? 1 : 0.3, // makes the login form look disabled/inactive when server isn't ready. // 1 = fully visible (100% opaque) //0.3 = 30% visible (70% transparent, appears faded/grayed out)
+                pointerEvents: serverReady ? 'auto' : 'none' // prevents users from clicking buttons or typing in fields when server isn't ready. // 'auto' = normal interaction (can click, type, etc.) // 'none' = no interaction possible (clicks go through the element)
+                }} mt={5}>
 
                 {/* Loading screen */}
                 {isLoading &&
