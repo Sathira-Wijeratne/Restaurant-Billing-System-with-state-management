@@ -4,6 +4,21 @@ A modern, responsive web application for restaurant billing management. This sys
 
 ## 🍽️ Features
 
+- **Authentication & Security**
+  - JWT (JSON Web Token) based authentication system
+  - Secure user registration and login with email/password
+  - HTTP-only cookies for secure token storage
+  - Password hashing with bcryptjs for enhanced security
+  - Protected routes requiring authentication
+  - Automatic token verification and session management
+
+- **State Management**
+  - Redux Toolkit for centralized authentication state management
+  - Persistent login sessions across browser refreshes
+  - Real-time authentication status updates
+  - Automatic token validation and renewal
+  - Seamless user experience with loading states
+
 - **Menu Management**
   - Add new menu items with names and prices
   - Edit existing menu items
