@@ -2,6 +2,15 @@
 
 A modern, responsive web application for restaurant billing management. This system helps restaurant owners manage their menu items and track sales efficiently.
 
+## 🌐 Live Demo & Deployment
+
+- **Live Web Application:** [https://casa-del-gusto.netlify.app/](https://casa-del-gusto.netlify.app/)
+- **Frontend Hosting:** [Netlify](https://www.netlify.com/) (Continuous deployment from main)
+- **Backend API:** [Render](https://render.com/) (Node.js & Express REST API)
+- **Database & Cloud Storage:** [Google Firebase Firestore](https://firebase.google.com/)
+
+> **Note:** The backend is hosted on Render's free tier. If the service has been idle, the initial request or login may take ~30–40 seconds to spin up the container.
+
 ## 🍽️ Features
 
 - **Authentication & Security**
